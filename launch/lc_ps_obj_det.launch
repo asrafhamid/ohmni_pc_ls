@@ -1,0 +1,49 @@
+<launch>
+    
+    <arg name="sim_env" value="true" />
+    <arg name="real_env" value="false" />
+
+    <arg name="camera" value="camera" />
+    <arg name="scan_topic" value="scan" />
+    <arg name="pc_scan_topic" value="scan2" /> <!--  converted scan from pc -->
+    <arg name="multi_scan_topic" value="multi_scan" /> <!-- merge from scan and pc_scan -->
+    <arg name="obj_scan_topic" value="scan" /> <!-- obj extracted from this scan -->
+
+    <group if="$(arg sim_env)"> 
+    
+        <!-- pc2 to lc -->
+        <include file="$(find ohmni_pc_ls)/launch/pc_ls_node.launch">
+            <arg name="camera" value="$(arg camera)" />
+            <arg name="pc_scan_topic" value="$(arg pc_scan_topic)" />
+        </include>
+
+        <!-- scan merge, obj extractor -->
+        <include file="$(find ohmni_pc_ls)/launch/obs_det_node.launch">
+            <arg name="front_scan" value="$(arg scan_topic)" />
+            <arg name="rear_scan" value="$(arg pc_scan_topic)" />
+            <arg name="multi_scan" value="$(arg multi_scan_topic)" />
+            <arg name="obj_scan" value="$(arg obj_scan_topic)" />
+        </include>
+    </group>
+
+    <group if="$(arg real_env)"> 
+    
+        <!-- pc2 to lc -->
+        <include file="$(find ohmni_pc_ls)/launch/pc_ls_nodelet.launch">
+            <arg name="camera" value="$(arg camera)" />
+            <arg name="pc_scan_topic" value="$(arg pc_scan_topic)" />
+        </include>
+
+        <!-- scan merge, obj extractor -->
+        <!-- <include file="$(find ohmni_pc_ls)/launch/obs_det_node.launch">
+            <arg name="front_scan" value="$(arg scan_topic)" />
+            <arg name="rear_scan" value="$(arg pc_scan_topic)" />
+            <arg name="multi_scan" value="$(arg multi_scan_topic)" />
+            <arg name="obj_scan" value="$(arg obj_scan_topic)" />
+        </include> -->
+    </group>
+
+    <!-- visualize obj distance on RVIZ -->
+    <!-- <node pkg="ohmni_pc_ls" type="obj_dist.py" name="obj_dist" output="screen"/> -->
+
+</launch>
